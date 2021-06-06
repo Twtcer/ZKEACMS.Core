@@ -1,19 +1,21 @@
-﻿/* http://www.zkea.net/ 
+/* http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
- *
  */
+
 using Easy.Mvc.Resource;
 using Easy.Mvc.Route;
+using Easy.RepositoryPattern;
+using Easy.StartTask;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Easy.RepositoryPattern;
-using Easy;
-using ZKEACMS.WidgetTemplate;
+using ZKEACMS.Dashboard;
+using ZKEACMS.Event;
+using ZKEACMS.Updater.Models;
 using ZKEACMS.Updater.Service;
-using Easy.StartTask;
+using ZKEACMS.WidgetTemplate;
 
 namespace ZKEACMS.Updater
 {
@@ -36,7 +38,7 @@ namespace ZKEACMS.Updater
 
         protected override void InitStyle(Func<string, ResourceHelper> style)
         {
-           
+
         }
 
         public override IEnumerable<PermissionDescriptor> RegistPermission()
@@ -54,6 +56,14 @@ namespace ZKEACMS.Updater
             serviceCollection.AddTransient<IOnModelCreating, EntityFrameWorkModelCreating>();
             serviceCollection.AddTransient<IStartTask, ApplicationStartup>();
             serviceCollection.AddTransient<IDbUpdaterService, DbUpdaterService>();
+            serviceCollection.AddTransient<IDashboardPartDriveService, UpdateDbFailedDashboardService>();
+            serviceCollection.RegistEvent<UpdateDbOnDbCreatedEventHandler>(Events.OnDatabaseCreated);
+
+            var configuration = new ConfigurationBuilder()
+             .SetBasePath(CurrentPluginPath)
+             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+
+            serviceCollection.Configure<DBVersionOption>(configuration.GetSection("DBVersionOption"));
         }
     }
 }

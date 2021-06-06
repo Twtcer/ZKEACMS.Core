@@ -1,10 +1,10 @@
-﻿/*!
+/*!
  * http://www.zkea.net/
  * Copyright 2017 ZKEASOFT
  * http://www.zkea.net/licenses
  */
 
-namespace ZKEACMS.Standard
+namespace ZKEACMS.Swagger
 {
     public class Program
     {

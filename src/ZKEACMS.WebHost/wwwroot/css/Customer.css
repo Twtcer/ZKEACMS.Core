@@ -61,16 +61,17 @@ body {
     margin-bottom: 10px;
 }
 
-    .form-input input {
+    .form-input input,
+    .form-input .captcha-container .image-captcha > img {
         border-radius: 0;
     }
 
-.info-bar {
-    margin: 0 -3rem;
-    background: #f2f2f2;
-    position: relative;
-    padding: .5rem 3rem;
-}
+    .info-bar {
+        margin: 0 -3rem;
+        background: #f2f2f2;
+        position: relative;
+        padding: .5rem 3rem;
+    }
 
     .info-bar p {
         margin-bottom: 0;
@@ -187,7 +188,7 @@ body {
 }
 
 .customer-center section.main {
-    padding: 1rem;
+    padding: 15px;
     background: #fff;
 }
 
@@ -198,6 +199,18 @@ body {
     width: 80px;
     text-align: right;
     margin-right: 10px;
+}
+
+.social a {
+    text-decoration: none;
+}
+
+    .social a:hover {
+        text-decoration: none;
+    }
+
+.social img {
+    height: 32px;
 }
 
 @media screen and (max-width:425px) {

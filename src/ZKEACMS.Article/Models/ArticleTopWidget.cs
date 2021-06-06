@@ -3,6 +3,7 @@ using Easy;
 using Easy.Constant;
 using Easy.Extend;
 using Easy.MetaData;
+using Easy.RepositoryPattern;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
@@ -14,7 +15,7 @@ using ZKEACMS.Widget;
 
 namespace ZKEACMS.Article.Models
 {
-    [Table("ArticleTopWidget")]
+    [DataTable("ArticleTopWidget")]
     public class ArticleTopWidget : BasicWidget
     {
         public int ArticleTypeID { get; set; }
@@ -34,7 +35,7 @@ namespace ZKEACMS.Article.Models
             ViewConfig(m => m.MoreLink).AsTextBox().Order(NextOrder()).PageSelector();
             ViewConfig(m => m.DetailPageUrl).AsTextBox().Order(NextOrder()).PageSelector();
 
-            ViewConfig(m => m.PartialView).AsDropDownList().Order(NextOrder()).DataSource(SourceType.Dictionary);
+            ViewConfig(m => m.PartialView).AsDropDownList().Order(NextOrder()).DataSource(SourceType.Dictionary).AsWidgetTemplateChooser();
         }
     }
 

@@ -172,5 +172,41 @@
     "inputFiles": [
       "wwwroot/js/tinymce/plugins/imagelocal/plugin.js"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/css/rule.min.css",
+    "inputFiles": [
+      "wwwroot/css/rule.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/lib/jquery-validation/dist/additional-methods.min.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery-validation/dist/additional-methods.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/lib/codemirror/addon/format/autoformat.min.js",
+    "inputFiles": [
+      "wwwroot/lib/codemirror/addon/format/autoformat.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/captcha.min.js",
+    "inputFiles": [
+      "wwwroot/js/captcha.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/captcha.min.css",
+    "inputFiles": [
+      "wwwroot/css/captcha.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/list-editor.min.js",
+    "inputFiles": [
+      "wwwroot/js/list-editor.js"
+    ]
   }
 ]

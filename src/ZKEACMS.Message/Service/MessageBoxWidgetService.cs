@@ -1,8 +1,12 @@
-﻿using System;
+/*!
+ * http://www.zkea.net/
+ * Copyright 2018 ZKEASOFT
+ * http://www.zkea.net/licenses
+ */
+
 using Easy;
 using Easy.Constant;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ZKEACMS.Message.Models;
 using ZKEACMS.Widget;
 
@@ -17,9 +21,9 @@ namespace ZKEACMS.Message.Service
             _messageService = messageService;
         }
 
-        public override WidgetViewModelPart Display(WidgetBase widget, ActionContext actionContext)
+        public override object Display(WidgetDisplayContext widgetDisplayContext)
         {
-            return widget.ToWidgetViewModelPart(_messageService.Get(m => m.Status == (int)RecordStatus.Active));
+            return _messageService.Get(m => m.Status == (int)RecordStatus.Active);
 
         }
     }

@@ -23,26 +23,53 @@ namespace ZKEACMS.Common.Service
         {
             _navigationService = navigationService;
         }
-        public override DbSet<NavigationWidget> CurrentDbSet => (DbContext as CMSDbContext).NavigationWidget;
-        public override WidgetViewModelPart Display(WidgetBase widget, ActionContext actionContext)
+        public override DbSet<NavigationWidget> CurrentDbSet => DbContext.NavigationWidget;
+        public override object Display(WidgetDisplayContext widgetDisplayContext)
         {
-            var currentWidget = widget as NavigationWidget;
+            var currentWidget = widgetDisplayContext.Widget as NavigationWidget;
+            var actionContext = widgetDisplayContext.ActionContext;
             var navs = _navigationService.Get()
                 .Where(m => m.Status == (int)RecordStatus.Active).OrderBy(m => m.DisplayOrder).ToList();
-            if (actionContext is ActionExecutedContext)
+
+            string path = null;
+            IUrlHelper urlHelper = null;
+            if (ApplicationContext.As<CMSApplicationContext>().IsDesignMode)
             {
-                string path = actionContext.HttpContext.Request.Path.Value.ToLower();
+                var layout = widgetDisplayContext.PageLayout;
+                if (layout != null && layout.Page != null)
+                {
+                    path = layout.Page.Url.Replace("~/", "/");
+                }
+            }
+            else if (actionContext is ActionExecutedContext)
+            {
+                path = (actionContext as ActionExecutedContext).HttpContext.Request.Path.Value.Replace(".html", string.Empty);
+                urlHelper = ((actionContext as ActionExecutedContext).Controller as Controller).Url;
+            }
+            if (urlHelper == null && (actionContext is ActionExecutedContext))
+            {
+                urlHelper = ((actionContext as ActionExecutedContext).Controller as Controller).Url;
+            }
+
+            if (path != null)
+            {
                 NavigationEntity current = null;
                 int length = 0;
-                IUrlHelper urlHelper = ((actionContext as ActionExecutedContext).Controller as Controller).Url;
                 foreach (var navigationEntity in navs)
                 {
-                    if (navigationEntity.Url.IsNotNullAndWhiteSpace()
-                        && path.StartsWith(urlHelper.PathContent(navigationEntity.Url).ToLower())
-                        && length < navigationEntity.Url.Length)
+                    string url = (navigationEntity.Url ?? "~/").Replace(".html", string.Empty);
+                    if (urlHelper != null)
+                    {
+                        url = urlHelper.Content(url);
+                    }
+                    else
+                    {
+                        url = url.Replace("~/", "/");
+                    }
+                    if (path.IndexOf(url, StringComparison.OrdinalIgnoreCase) == 0 && length < url.Length)
                     {
                         current = navigationEntity;
-                        length = navigationEntity.Url.Length;
+                        length = url.Length;
                     }
                 }
                 if (current != null)
@@ -56,7 +83,7 @@ namespace ZKEACMS.Common.Service
             {
                 currentWidget.RootID = "#";
             }
-            return widget.ToWidgetViewModelPart(new NavigationWidgetViewModel(navs, currentWidget));
+            return new NavigationWidgetViewModel(navs, currentWidget);
         }
     }
 }

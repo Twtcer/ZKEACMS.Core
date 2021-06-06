@@ -1,4 +1,4 @@
-﻿/* http://www.zkea.net/ 
+/* http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
  *
@@ -29,22 +29,22 @@ namespace ZKEACMS.Shop
             yield return new RouteDescriptor
             {
                 RouteName = "Basket",
-                Template = "Basket/{action}",
-                Defaults = new { controller = "Basket", action = "Add" },
+                Template = "basket/{action}",
+                Defaults = new { controller = "basket", action = "add" },
                 Priority = 11
             };
             yield return new RouteDescriptor
             {
                 RouteName = "AliPay",
-                Template = "AliPay/{action}/{orderId?}",
-                Defaults = new { controller = "AliPay", action = "Pay" },
+                Template = "alipay/{action}/{orderId?}",
+                Defaults = new { controller = "alipay", action = "pay" },
                 Priority = 11
             };
             yield return new RouteDescriptor
             {
                 RouteName = "CustomOrder",
-                Template = "MyOrder/{action}/{Id?}",
-                Defaults = new { controller = "CustomOrder", action = "Index" },
+                Template = "myorder/{action}/{Id?}",
+                Defaults = new { controller = "customorder", action = "index" },
                 Priority = 11
             };
         }
@@ -53,24 +53,24 @@ namespace ZKEACMS.Shop
         {
             yield return new AdminMenu
             {
-                Title = "电子商务",
+                Title = "E-commerce",
                 Icon = "glyphicon-shopping-cart",
                 Order = 9,
                 Children = new List<AdminMenu>
                 {
                     new AdminMenu
                     {
-                        Title = "订单",
+                        Title = "Order",
                         Icon = "glyphicon-shopping-cart",
-                        Url="~/admin/Order",
+                        Url="~/admin/order",
                         Order = 1,
                         PermissionKey = PermissionKeys.ManageOrder
                     },
                     new AdminMenu
                     {
-                        Title = "支付宝集成设置",
+                        Title = "Alipay Setting",
                         Icon = "glyphicon-credit-card",
-                        Url="~/admin/AliPay/Setting",
+                        Url="~/admin/alipaysetting/config",
                         Order = 1,
                         PermissionKey = PermissionKeys.PaymentConfigManage
                     }
@@ -93,14 +93,13 @@ namespace ZKEACMS.Shop
 
         public override IEnumerable<PermissionDescriptor> RegistPermission()
         {
-            yield return new PermissionDescriptor { Module = "商城", Title = "查看订单", Key = PermissionKeys.ViewOrder };
-            yield return new PermissionDescriptor { Module = "商城", Title = "管理订单", Key = PermissionKeys.ManageOrder };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "View Order", Key = PermissionKeys.ViewOrder };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "Manage Order", Key = PermissionKeys.ManageOrder };
 
-            yield return new PermissionDescriptor { Module = "商城", Title = "查看支付平台支付信息", Key = PermissionKeys.ViewOrderPayment };
-            yield return new PermissionDescriptor { Module = "商城", Title = "查看支付平台退款信息", Key = PermissionKeys.ViewOrderRefund };
-            yield return new PermissionDescriptor { Module = "商城", Title = "退款", Key = PermissionKeys.RefundOrder };
-            yield return new PermissionDescriptor { Module = "商城", Title = "支付集成设置", Key = PermissionKeys.PaymentConfigManage };
-            //yield return new PermissionDescriptor { Module = "商城", Title = "关闭订单", Key = PermissionKeys.CloseOrder };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "View Transactions", Key = PermissionKeys.ViewOrderPayment };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "View Refund", Key = PermissionKeys.ViewOrderRefund };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "Refund", Key = PermissionKeys.RefundOrder };
+            yield return new PermissionDescriptor { Module = "Shop", Title = "Payment Setting", Key = PermissionKeys.PaymentConfigManage };
         }
 
         public override IEnumerable<WidgetTemplateEntity> WidgetServiceTypes()
@@ -110,7 +109,7 @@ namespace ZKEACMS.Shop
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IOnModelCreating, EntityFrameWorkModelCreating>();
+            serviceCollection.AddSingleton<IOnModelCreating, EntityFrameWorkModelCreating>();
 
             serviceCollection.TryAddTransient<IBasketService, BasketService>();
             serviceCollection.TryAddTransient<IOrderService, OrderService>();

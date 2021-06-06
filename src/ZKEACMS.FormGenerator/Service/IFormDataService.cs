@@ -1,4 +1,8 @@
-﻿using Easy.RepositoryPattern;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
+using Easy.RepositoryPattern;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -11,7 +15,7 @@ namespace ZKEACMS.FormGenerator.Service
 {
     public interface IFormDataService : IService<FormData>
     {
-        ServiceResult<FormField> SaveForm(IFormCollection form, string formId);
+        ServiceResult<FormData> SaveForm(IFormCollection form, string formId);
         MemoryStream Export(int id);
         MemoryStream ExportByForm(string formId);
     }

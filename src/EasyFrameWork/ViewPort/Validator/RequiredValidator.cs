@@ -7,7 +7,7 @@ namespace Easy.ViewPort.Validator
     {
         public RequiredValidator()
         {
-            this.BaseErrorMessage = "请输入{0}";
+            BaseErrorMessage = "{0} is required";
         }
         public override bool Validate(object value)
         {

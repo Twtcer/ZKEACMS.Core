@@ -1,4 +1,4 @@
-﻿/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
+/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
 using Easy.Mvc.Resource;
 using Easy.Mvc.Route;
 using System;
@@ -62,8 +62,8 @@ namespace ZKEACMS.SectionWidget
         {
             yield return new WidgetTemplateEntity<SectionWidgetService>
             {
-                Title = "自定义",
-                GroupName = "1.通用",
+                Title = "Section Widget",
+                GroupName = "1.General",
                 PartialView = "Widget.Section",
                 Thumbnail = "~/images/Widget.Section.png",
                 FormView= "SectionWidgetForm",
@@ -73,7 +73,7 @@ namespace ZKEACMS.SectionWidget
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IOnModelCreating, EntityFrameWorkModelCreating>();
+            serviceCollection.AddSingleton<IOnModelCreating, EntityFrameWorkModelCreating>();
 
             serviceCollection.AddTransient<ISectionGroupService, SectionGroupService>();
             serviceCollection.AddTransient<ISectionContentProviderService, SectionContentProviderService>();

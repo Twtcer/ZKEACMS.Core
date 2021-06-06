@@ -1,4 +1,9 @@
-﻿using Easy.Models;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
+using Easy.Models;
+using Easy.RepositoryPattern;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ZKEACMS.FormGenerator.Models
 {
-    [Table("FormDataItem")]
+    [DataTable("FormDataItem")]
     public class FormDataItem : EditorEntity
     {
         [Key]

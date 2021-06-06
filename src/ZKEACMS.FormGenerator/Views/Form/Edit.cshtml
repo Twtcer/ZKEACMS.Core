@@ -1,21 +1,25 @@
-﻿@model ZKEACMS.FormGenerator.Models.Form
+@model ZKEACMS.FormGenerator.Models.Form
 @{
 
 }
 
 <div ng-app="fild" ng-controller="formgenerator">
     <div class="row" ng-app="fieldSetting" ng-controller="setting" ng-init="saveUrl='@Url.Action("Edit")'">
-        @Html.Partial("Setting")
+        @await Html.PartialAsync("Setting")
     </div>
 </div>
 @using (Script.AtFoot())
 {
     <script type="text/javascript">
         angular.module("fild", ["fieldSetting"]).controller("formgenerator", function ($scope) {
-            $scope.ID = '@Model.ID';
-            $scope.Title = '@Html.Raw(Model.Title)';
-            $scope.Description = '@Model.Description';
-            $scope.Fields = @Html.Raw(Model.FieldsData);
+            var obj = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+            
+            for(var p in obj){
+                if(obj.hasOwnProperty(p) && p != 'FieldsData' && p != 'FormFields'){
+                    $scope[p] = obj[p];
+                }
+            }
+            $scope.Fields = JSON.parse(obj.FieldsData);
         });
     </script>
 }

@@ -1,4 +1,7 @@
-﻿using Easy;
+/* http://www.zkea.net/ 
+ * Copyright (c) ZKEASOFT. All rights reserved. 
+ * http://www.zkea.net/licenses */
+using Easy;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,5 +12,6 @@ namespace ZKEACMS.Options
     {
         public DbTypes DbType { get; set; }
         public string ConnectionString { get; set; }
+        public bool IsLowerCaseTableNames { get; set; }
     }
 }

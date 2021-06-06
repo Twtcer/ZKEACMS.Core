@@ -1,4 +1,7 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright (c) ZKEASOFT. All rights reserved. 
+ * http://www.zkea.net/licenses */
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +18,14 @@ namespace Easy.RepositoryPattern
             get;
             private set;
         }
-
+        public void AddRuleViolation(string message)
+        {
+            RuleViolations.Add(new RuleViolation(string.Empty, message));
+        }
+        public void AddRuleViolation(string name, string message)
+        {
+            RuleViolations.Add(new RuleViolation(name, message));
+        }
         public bool HasViolation
         {
             get { return RuleViolations != null && RuleViolations.Count > 0; }

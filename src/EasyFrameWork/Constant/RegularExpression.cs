@@ -7,7 +7,7 @@ namespace Easy.Constant
         /// <summary>
         /// 邮件
         /// </summary>
-        public const string Email = @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*";
+        public const string Email = @"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
         /// <summary>
         /// 网址
         /// </summary>
@@ -29,6 +29,10 @@ namespace Easy.Constant
         /// </summary>
         public const string ChinesePhone = @"\d{3}-\d{8}|\d{4}-\d{7}";
         /// <summary>
+        /// 手机号
+        /// </summary>
+        public const string ChineseMobile = @"^1[34578]\d{9}$";
+        /// <summary>
         /// 邮政编码
         /// </summary>
         public const string ZipCode = @"[0-9]\d{5}(?!\d)";
@@ -43,11 +47,11 @@ namespace Easy.Constant
         /// <summary>
         /// 匹配正整数
         /// </summary>
-        public const string PositiveIntegers = @"^[1-9]+$";
+        public const string PositiveIntegers = @"^[1-9]\d*$";
         /// <summary>
         /// 匹配负整数
         /// </summary>
-        public const string NegativeIntegers = @"^-[1-9]+$";
+        public const string NegativeIntegers = @"^-[1-9]\d*$";
         /// <summary>
         ///匹配整数
         /// </summary>
@@ -81,7 +85,11 @@ namespace Easy.Constant
         /// </summary>
         public const string LettersAndNumber = @"^[A-Za-z0-9]+$";
         /// <summary>
-        /// 匹配由数字、26个英文字母或者下划线组成的字符串
+        /// 匹配包括下划线中划线的任何单词字符
+        /// </summary>
+        public const string LetterNumberOrLine = @"^[A-Za-z0-9_-]+$";
+        /// <summary>
+        /// 匹配包括下划线的任何单词字符
         /// </summary>
         public const string LettersAndNumberAndLine = @"^\w+$";
     }

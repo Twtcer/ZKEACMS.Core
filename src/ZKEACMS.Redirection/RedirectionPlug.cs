@@ -1,17 +1,18 @@
-﻿/* http://www.zkea.net/ 
+/* http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
  */
+using Easy;
+using Easy.Extend;
 using Easy.Mvc.Resource;
 using Easy.Mvc.Route;
-using System;
-using System.Collections.Generic;
+using Easy.RepositoryPattern;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Easy.RepositoryPattern;
-using ZKEACMS.Redirection.Service;
-using Easy;
+using System;
+using System.Collections.Generic;
 using ZKEACMS.Redirection.Models;
+using ZKEACMS.Redirection.Service;
 using ZKEACMS.WidgetTemplate;
 
 namespace ZKEACMS.Redirection
@@ -34,8 +35,9 @@ namespace ZKEACMS.Redirection
         {
             yield return new AdminMenu
             {
-                Title = "URL重定向",
-                Url = "~/Admin/UrlRedirection",
+                Group = "System",
+                Title = "Url Redirect",
+                Url = "~/admin/urlredirection",
                 Icon = "glyphicon-random",
                 Order = 12,
                 PermissionKey = PermissionKeys.ViewUrlRedirect
@@ -56,16 +58,16 @@ namespace ZKEACMS.Redirection
         {
             yield return new PermissionDescriptor
             {
-                Module = "URL重定向",
-                Title = "查看重定向",
-                Description = "查看重定向",
+                Module = "Setting",
+                Title = "View URL Redirection",
+                Description = "View URL Redirection",
                 Key = PermissionKeys.ViewUrlRedirect
             };
             yield return new PermissionDescriptor
             {
-                Module = "URL重定向",
-                Title = "管理重定向",
-                Description = "管理重定向",
+                Module = "Setting",
+                Title = "Manage URL Redirection",
+                Description = "Manage URL Redirection",
                 Key = PermissionKeys.ManageUrlRedirect
             };
         }
@@ -77,11 +79,12 @@ namespace ZKEACMS.Redirection
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IOnModelCreating, EntityFrameWorkModelCreating>();
+            serviceCollection.AddSingleton<IOnModelCreating, EntityFrameWorkModelCreating>();
 
             serviceCollection.TryAddTransient<IUrlRedirectService, UrlRedirectService>();
 
             serviceCollection.ConfigureMetaData<UrlRedirect, UrlRedirectMetaData>();
+            serviceCollection.ConfigureCache<IEnumerable<UrlRedirect>>();
         }
     }
 }

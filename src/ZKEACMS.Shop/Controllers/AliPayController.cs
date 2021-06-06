@@ -1,4 +1,4 @@
-﻿using Alipay.AopSdk.AspnetCore;
+using Alipay.AopSdk.AspnetCore;
 using Alipay.AopSdk.Core.Domain;
 using Alipay.AopSdk.Core.Request;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +16,7 @@ using Easy.Extend;
 using Newtonsoft.Json;
 using Easy.Mvc.Authorize;
 using ZKEACMS.DataArchived;
+using Easy.Mvc.ViewResult;
 
 namespace ZKEACMS.Shop.Controllers
 {
@@ -23,26 +24,27 @@ namespace ZKEACMS.Shop.Controllers
     {
         private readonly IAlipayService _alipayService;
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        private readonly IDataArchivedService _dataArchivedService;
+        private readonly IHostOptionProvider _hostOptionProvider;
         public AliPayController(IAlipayService alipayService,
             IOrderService orderService,
-            IOrderItemService orderItemService,
-            IDataArchivedService dataArchivedService)
+            IHostOptionProvider hostOptionProvider)
         {
             _alipayService = alipayService;
             _orderService = orderService;
-            _orderItemService = orderItemService;
-            _dataArchivedService = dataArchivedService;
+            _hostOptionProvider = hostOptionProvider;
         }
 
         public IActionResult Pay(string orderId)
         {
+            if (orderId.IsNullOrWhiteSpace())
+            {
+                return new HttpBadRequestResult();
+            }
             var order = _orderService.Get(orderId);
-            var items = _orderItemService.Get(m => m.OrderId == orderId);
+            var items = order.OrderItems;
             if (!items.Any())
             {
-                return Redirect("~/");
+                return new HttpBadRequestResult();
             }
             AlipayTradePagePayModel model = new AlipayTradePagePayModel
             {
@@ -54,13 +56,13 @@ namespace ZKEACMS.Shop.Controllers
             };
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
             // 设置同步回调地址
-            request.SetReturnUrl($"{HttpContext.Request.GetHostWithScheme()}/AliPay/Callback");
+            request.SetReturnUrl($"{_hostOptionProvider.GetOrigin()}/AliPay/Callback");
 
             // 设置异步通知接收地址
-            request.SetNotifyUrl($"{HttpContext.Request.GetHostWithScheme()}/AliPay/Notify");
+            request.SetNotifyUrl($"{_hostOptionProvider.GetOrigin()}/AliPay/Notify");
             request.SetBizModel(model);
             var response = _alipayService.SdkExecute(request);
-
+            order.PaymentGateway = Gateways.AliPay;
             _orderService.BeginPay(order);
 
             return Redirect(_alipayService.Options.Gatewayurl + "?" + response.Body);
@@ -146,17 +148,6 @@ namespace ZKEACMS.Shop.Controllers
 
         }
 
-        #endregion
-        [DefaultAuthorize(Policy = PermissionKeys.PaymentConfigManage)]
-        public IActionResult Setting()
-        {
-            return View(_alipayService.Options);
-        }
-        [DefaultAuthorize(Policy = PermissionKeys.PaymentConfigManage), HttpPost]
-        public IActionResult Setting(AlipayOptions options)
-        {
-            _dataArchivedService.Archive(Service.AlipayService.SettingKey, options);
-            return View(options);
-        }
+        #endregion        
     }
 }

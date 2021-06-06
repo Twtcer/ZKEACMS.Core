@@ -1,4 +1,7 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright (c) ZKEASOFT. All rights reserved. 
+ * http://www.zkea.net/licenses */
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +16,7 @@ namespace ZKEACMS.Theme
         private const string ThemePath = "~/themes";
         private readonly IThemeService _themeService;
 
-        public ThemePackageInstaller(IHostingEnvironment hostingEnvironment, IThemeService themeService) : base(hostingEnvironment)
+        public ThemePackageInstaller(IWebHostEnvironment hostingEnvironment, IThemeService themeService) : base(hostingEnvironment)
         {
             _themeService = themeService;
         }

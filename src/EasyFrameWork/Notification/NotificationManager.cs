@@ -1,4 +1,7 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright 2018 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -23,7 +26,7 @@ namespace Easy.Notification
                     item.Send(notice);
                 }
             }
-            else throw new Exception($"未找到类型{noticeType}对应的通知器");
+            else throw new Exception($"INotifyService for {noticeType} is not exists");
         }
     }
 }

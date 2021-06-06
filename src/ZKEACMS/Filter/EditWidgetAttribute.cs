@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using System;
 using Microsoft.Net.Http.Headers;
+using ZKEACMS.Theme;
 
 namespace ZKEACMS.Filter
 {
@@ -20,17 +21,21 @@ namespace ZKEACMS.Filter
                 NoCache = true,
                 NoStore = true
             };
-            string pageId = filterContext.RouteData.Values["id"].ToString();
+            var pageId = filterContext.RouteData.Values["id"];
+            if (pageId == null)
+            {
+                return null;
+            }
 
             using (var pageService = filterContext.HttpContext.RequestServices.GetService<IPageService>())
             {
-                return pageService.Get(pageId);
+                return pageService.Get(pageId.ToString());
             }
         }
 
-        public override string GetLayout()
+        public override string GetLayout(ActionExecutedContext filterContext, ThemeEntity theme)
         {
-            return "~/Views/Shared/_DesignPageLayout.cshtml";
+            return Layouts.PageDesign;
         }
         public override PageViewMode GetPageViewMode()
         {

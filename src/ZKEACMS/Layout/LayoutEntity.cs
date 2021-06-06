@@ -1,11 +1,13 @@
 /* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
 using Easy.MetaData;
 using Easy.Models;
+using Easy.RepositoryPattern;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using ZKEACMS.Extend;
+using ZKEACMS.Filter;
 using ZKEACMS.Page;
 using ZKEACMS.Theme;
 using ZKEACMS.Widget;
@@ -13,7 +15,7 @@ using ZKEACMS.Zone;
 
 namespace ZKEACMS.Layout
 {
-    [Table("CMS_Layout")]
+    [DataTable("CMS_Layout")]
     public class LayoutEntity : EditorEntity, IImage
     {
         public const string DefaultThumbnial = "~/images/layout.jpg";
@@ -60,6 +62,13 @@ namespace ZKEACMS.Layout
             ViewConfig(m => m.Style).AsTextBox().FileSelector();
             ViewConfig(m => m.ImageThumbUrl).AsHidden();
             ViewConfig(m => m.ImageUrl).AsHidden();
+            ViewConfig(m => m.Zones).AsHidden().Ignore();
+            ViewConfig(m => m.ZoneWidgets).AsHidden().Ignore();
+            ViewConfig(m => m.Html).AsHidden().Ignore();
+            ViewConfig(m => m.Page).AsHidden().Ignore();
+            ViewConfig(m => m.PreViewPage).AsHidden().Ignore();
+            ViewConfig(m => m.CurrentTheme).AsHidden().Ignore();
+            ViewConfig(m => m.Templates).AsHidden().Ignore();
         }
     }
 

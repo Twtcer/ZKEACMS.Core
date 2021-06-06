@@ -10,10 +10,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using Easy;
+using Easy.RepositoryPattern;
 
 namespace ZKEACMS.SectionWidget.Models
 {
-    [Table("SectionGroup")]
+    [DataTable("SectionGroup")]
     public class SectionGroup : EditorEntity
     {
         [Key]
@@ -136,6 +137,16 @@ namespace ZKEACMS.SectionWidget.Models
             });
             ViewConfig(m => m.Title).AsHidden();
             ViewConfig(m => m.Description).AsHidden();
+
+            ViewConfig(m => m.SectionContents).AsHidden().Ignore();
+            ViewConfig(m => m.SectionTitle).AsHidden().Ignore();
+            ViewConfig(m => m.SectionTitles).AsHidden().Ignore();
+            ViewConfig(m => m.CallToAction).AsHidden().Ignore();
+            ViewConfig(m => m.CallToActions).AsHidden().Ignore();
+            ViewConfig(m => m.SectionImage).AsHidden().Ignore();
+            ViewConfig(m => m.SectionImages).AsHidden().Ignore();
+            ViewConfig(m => m.Paragraph).AsHidden().Ignore();
+            ViewConfig(m => m.Paragraphs).AsHidden().Ignore();
         }
     }
 }

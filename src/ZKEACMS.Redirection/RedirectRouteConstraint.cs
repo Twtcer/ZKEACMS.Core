@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using ZKEACMS.Redirection.Service;
 using Microsoft.Extensions.DependencyInjection;
+using ZKEACMS.Redirection.Models;
 
 namespace ZKEACMS.Redirection
 {
@@ -13,14 +14,20 @@ namespace ZKEACMS.Redirection
     {
         public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values, RouteDirection routeDirection)
         {
-            string path = $"~/{(values["path"] ?? "").ToString()}";
+            if (routeDirection == RouteDirection.UrlGeneration) return false;
+
+            string path = $"~/{values[routeKey]}";
+            if (path.Length > 2 && path.EndsWith('/'))
+            {
+                path = path.TrimEnd('/');
+            }
             if (path.IndexOf(".html", StringComparison.OrdinalIgnoreCase) < 0 && CustomRegex.PostIdRegex.IsMatch(path))
             {
                 return true;
             }
-            path = path.Replace(".html", string.Empty, StringComparison.OrdinalIgnoreCase);
-            var redirect = httpContext.RequestServices.GetService<IUrlRedirectService>().Count(m => m.Status == (int)Easy.Constant.RecordStatus.Active && m.InComingUrl == path && m.InComingUrl != m.DestinationURL);
-            return redirect > 0;
+            UrlRedirect redirect = httpContext.RequestServices.GetService<IUrlRedirectService>().GetByPath(path);
+
+            return redirect != null;
         }
     }
 }

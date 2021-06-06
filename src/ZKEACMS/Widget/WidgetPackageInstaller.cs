@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+/* http://www.zkea.net/ 
+ * Copyright (c) ZKEASOFT. All rights reserved. 
+ * http://www.zkea.net/licenses */
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -13,7 +16,7 @@ namespace ZKEACMS.Widget
 {
     public class WidgetPackageInstaller : FilePackageInstaller
     {
-        public WidgetPackageInstaller(IHostingEnvironment hostingEnvironment) : base(hostingEnvironment)
+        public WidgetPackageInstaller(IWebHostEnvironment hostingEnvironment) : base(hostingEnvironment)
         {
         }
 
@@ -63,7 +66,7 @@ namespace ZKEACMS.Widget
     public class DataDictionaryPackageInstaller : FilePackageInstaller
     {
         private readonly IDataDictionaryService _dataDictionaryService;
-        public DataDictionaryPackageInstaller(IHostingEnvironment hostingEnvironment, IDataDictionaryService dataDictionaryService) : base(hostingEnvironment)
+        public DataDictionaryPackageInstaller(IWebHostEnvironment hostingEnvironment, IDataDictionaryService dataDictionaryService) : base(hostingEnvironment)
         {
             _dataDictionaryService = dataDictionaryService;
         }

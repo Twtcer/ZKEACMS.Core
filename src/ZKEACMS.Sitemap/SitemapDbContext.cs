@@ -1,4 +1,8 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,19 +14,10 @@ namespace ZKEACMS.Sitemap
 {
     public class SitemapDbContext : DbContext
     {
-        public SitemapDbContext(IOnDatabaseConfiguring configuring)
+        public SitemapDbContext(DbContextOptions<SitemapDbContext> options) : base(options)
         {
-            DatabaseConfiguring = configuring;
         }
-        public IOnDatabaseConfiguring DatabaseConfiguring { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (DatabaseConfiguring != null)
-            {
-                DatabaseConfiguring.OnConfiguring(optionsBuilder);
-            }
-        }
-        internal DbSet<ArticleListWidget> ArticleListWidget { get; set; }
-        internal DbSet<ProductListWidget> ProductListWidget { get; set; }
+        internal DbSet<ArticleDetailWidget> ArticleDetailWidget { get; set; }
+        internal DbSet<ProductDetailWidget> ProductDetailWidget { get; set; }
     }
 }

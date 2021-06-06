@@ -1,4 +1,4 @@
-﻿/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
+/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
 using Easy.Extend;
 using Easy.Image;
 using Easy.RepositoryPattern;
@@ -12,13 +12,13 @@ using System.Linq;
 
 namespace ZKEACMS.Media
 {
-    public class MediaService : ServiceBase<MediaEntity>, IMediaService
+    public class MediaService : ServiceBase<MediaEntity, CMSDbContext>, IMediaService
     {
         public MediaService(IApplicationContext applicationContext, CMSDbContext dbContext) : base(applicationContext, dbContext)
         {
         }
 
-        public override DbSet<MediaEntity> CurrentDbSet => (DbContext as CMSDbContext).Media;
+        public override DbSet<MediaEntity> CurrentDbSet => DbContext.Media;
 
         public override ServiceResult<MediaEntity> Add(MediaEntity item)
         {
@@ -79,7 +79,7 @@ namespace ZKEACMS.Media
 
         public MediaEntity GetImageFolder()
         {
-            const string imageFolder = "图片";
+            const string imageFolder = "Image";
             var folder = Get(m => m.Title == imageFolder && m.MediaType == (int)MediaType.Folder).FirstOrDefault();
             if (folder == null)
             {

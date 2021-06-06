@@ -1,38 +1,44 @@
-﻿using Easy.RepositoryPattern;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ZKEACMS.FormGenerator.Models;
-using Microsoft.EntityFrameworkCore;
-using Easy;
-using Microsoft.AspNetCore.Http;
-using System.Text.RegularExpressions;
-using Easy.Extend;
-using Newtonsoft.Json;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
 using DocumentFormat.OpenXml;
-using System.IO;
+using Easy;
 using Easy.DataTransfer;
+using Easy.Extend;
+using Easy.RepositoryPattern;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using ZKEACMS.Event;
+using ZKEACMS.FormGenerator.Models;
 using ZKEACMS.FormGenerator.Service.Validator;
 
 namespace ZKEACMS.FormGenerator.Service
 {
-    public class FormDataService : ServiceBase<FormData>, IFormDataService
+    public class FormDataService : ServiceBase<FormData, CMSDbContext>, IFormDataService
     {
         private readonly IFormService _formService;
         private readonly IFormDataItemService _formDataItemService;
         private readonly IEnumerable<IFormDataValidator> _formDataValidators;
+        private readonly IEventManager _eventManager;
+        private static Regex _nameRegex = new Regex(@"(\w+)\[(\d+)\]", RegexOptions.Compiled);
+
         public FormDataService(IApplicationContext applicationContext,
             CMSDbContext dbContext,
             IFormService formService,
             IFormDataItemService formDataItemService,
-            IEnumerable<IFormDataValidator> formDataValidators) : base(applicationContext, dbContext)
+            IEnumerable<IFormDataValidator> formDataValidators,
+            ILocalize localize, IEventManager eventManager) :
+            base(applicationContext, dbContext)
         {
             _formService = formService;
             _formDataItemService = formDataItemService;
             _formDataValidators = formDataValidators;
+            _eventManager = eventManager;
         }
 
         public override ServiceResult<FormData> Add(FormData item)
@@ -57,6 +63,12 @@ namespace ZKEACMS.FormGenerator.Service
             var formData = base.Get(primaryKey);
             formData.Form = _formService.Get(formData.FormId);
             formData.Datas = _formDataItemService.Get(m => m.FormDataId == formData.ID).ToList();
+            MergeDataToForm(formData);
+            return formData;
+        }
+
+        private void MergeDataToForm(FormData formData)
+        {
             if (formData.Form != null)
             {
                 foreach (var item in formData.Form.FormFields)
@@ -88,17 +100,22 @@ namespace ZKEACMS.FormGenerator.Service
 
                 }
             }
-            return formData;
         }
-        public ServiceResult<FormField> SaveForm(IFormCollection formCollection, string formId)
+
+        public ServiceResult<FormData> SaveForm(IFormCollection formCollection, string formId)
         {
+            var result = new ServiceResult<FormData>();
             var form = _formService.Get(formId);
-            var formData = new FormData { FormId = formId, Datas = new List<FormDataItem>() };
-            Regex regex = new Regex(@"(\w+)\[(\d+)\]");
+            if (form == null)
+            {
+                result.RuleViolations.Add(new RuleViolation("Form", "Form not found!"));
+                return result;
+            }
+            var formData = new FormData { FormId = formId, Datas = new List<FormDataItem>(), Form = form };
 
             foreach (var item in formCollection.Keys)
             {
-                string id = regex.Replace(item, evaluator =>
+                string id = _nameRegex.Replace(item, evaluator =>
                 {
                     return evaluator.Groups[1].Value;
                 });
@@ -118,23 +135,31 @@ namespace ZKEACMS.FormGenerator.Service
                     }
                     foreach (var validator in _formDataValidators)
                     {
-                        string message;
-                        if (!validator.Validate(field, dataitem, out message))
+                        if (!validator.Validate(field, dataitem, out string message))
                         {
-                            var result = new ServiceResult<FormField>();
-                            result.RuleViolations.Add(new RuleViolation(field.DisplayName, message));
-                            return result;
+                            result.RuleViolations.Add(new RuleViolation(item, message));
                         }
                     }
                     formData.Datas.Add(dataitem);
                 }
             }
+            MergeDataToForm(formData);
+            result.Result = formData;
+            if (result.HasViolation)
+            {
+                return result;
+            }
             if (formData.Datas.Any())
             {
                 formData.Title = formData.Datas.FirstOrDefault().FieldValue;
             }
-            Add(formData);
-            return new ServiceResult<FormField>();
+            result = Add(formData);
+            if (!result.HasViolation)
+            {
+                FormData data = Get(formData.ID);
+                _eventManager.Trigger(Events.OnFormDataSubmitted, data);
+            }
+            return result;
         }
         public override void Remove(FormData item)
         {

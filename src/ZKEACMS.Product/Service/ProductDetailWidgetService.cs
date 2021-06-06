@@ -7,31 +7,61 @@ using ZKEACMS.Product.Models;
 using ZKEACMS.Widget;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Easy.Extend;
+using System.Collections.Concurrent;
 
 namespace ZKEACMS.Product.Service
 {
     public class ProductDetailWidgetService : WidgetService<ProductDetailWidget>
     {
+        private const string ProductDetailWidgetRelatedPageUrls = "ProductDetailWidgetRelatedPageUrls";
+        private readonly ConcurrentDictionary<string, object> _allRelatedUrlCache;
         private readonly IProductService _productService;
-        public ProductDetailWidgetService(IWidgetBasePartService widgetService, IProductService productService, IApplicationContext applicationContext, CMSDbContext dbContext)
+        public ProductDetailWidgetService(IWidgetBasePartService widgetService,
+            IProductService productService,
+            IApplicationContext applicationContext,
+            Easy.Cache.ICacheManager<ConcurrentDictionary<string, object>> cacheManager,
+            CMSDbContext dbContext)
             : base(widgetService, applicationContext, dbContext)
         {
             _productService = productService;
+            _allRelatedUrlCache = cacheManager.GetOrAdd(ProductDetailWidgetRelatedPageUrls, new ConcurrentDictionary<string, object>());
         }
-        
-        public override WidgetViewModelPart Display(WidgetBase widget, ActionContext actionContext)
+        private void DismissRelatedPageUrls()
         {
+            _allRelatedUrlCache.TryRemove(ProductDetailWidgetRelatedPageUrls, out var urls);
+        }
+
+        public override void AddWidget(WidgetBase widget)
+        {
+            base.AddWidget(widget);
+            DismissRelatedPageUrls();
+        }
+
+        public override void DeleteWidget(string widgetId)
+        {
+            base.DeleteWidget(widgetId);
+            DismissRelatedPageUrls();
+        }
+        public override object Display(WidgetDisplayContext widgetDisplayContext)
+        {
+            var actionContext = widgetDisplayContext.ActionContext;
             int productId = actionContext.RouteData.GetPost();
             ProductEntity product = null;
             if (productId != 0)
             {
-                product = _productService.Get(productId);
+                product = actionContext.RouteData.GetProduct(productId) ?? _productService.Get(productId);
+                if (product != null && product.Url.IsNotNullAndWhiteSpace() && actionContext.RouteData.GetProductUrl().IsNullOrWhiteSpace())
+                {
+                    actionContext.RedirectTo($"{actionContext.RouteData.GetPath()}/{product.Url}.html", true);
+                }
             }
             if (product == null && ApplicationContext.IsAuthenticated)
             {
-                foreach (var item in _productService.Get().AsQueryable().OrderByDescending(m => m.ID).Take(1))
+                product = _productService.Get().OrderByDescending(m => m.ID).FirstOrDefault();
+                if (product != null)
                 {
-                    product = item;
+                    product = _productService.Get(product.ID);
                 }
             }
             if (product == null)
@@ -40,7 +70,7 @@ namespace ZKEACMS.Product.Service
             }
             if (product != null)
             {
-                var layout = actionContext.HttpContext.GetLayout();
+                var layout = widgetDisplayContext.PageLayout;
                 if (layout != null && layout.Page != null)
                 {
                     var page = layout.Page;
@@ -50,7 +80,16 @@ namespace ZKEACMS.Product.Service
                 }
             }
 
-            return widget.ToWidgetViewModelPart(product ?? new ProductEntity());
+            return product ?? new ProductEntity();
+        }
+
+        public string[] GetRelatedPageUrls()
+        {
+            return _allRelatedUrlCache.GetOrAdd(ProductDetailWidgetRelatedPageUrls, fac =>
+            {
+                var pages = WidgetBasePartService.Get(w => Get().Select(m => m.ID).Contains(w.ID)).Select(m => m.PageID).ToArray();
+                return DbContext.Page.Where(p => pages.Contains(p.ID)).Select(m => m.Url.Replace("~/", "/")).Distinct().ToArray();
+            }) as string[];
         }
     }
 }

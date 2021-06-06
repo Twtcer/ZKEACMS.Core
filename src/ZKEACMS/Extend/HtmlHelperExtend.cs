@@ -5,23 +5,42 @@ using Easy.RepositoryPattern;
 using ZKEACMS.Widget;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Easy.Mvc.Extend;
+using System;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Easy.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace ZKEACMS
 {
     public static class HtmlHelperExtend
     {
-        public static IHtmlContent DisPlayWidget(this IHtmlHelper html, WidgetViewModelPart widget)
+        public static async Task<IHtmlContent> DisplayWidget(this IHtmlHelper html, WidgetViewModelPart widget)
         {
             if (widget.ViewModel != null)
             {
-                return html.Partial(widget.Widget.PartialView, widget.ViewModel);
+                var logger = html.ViewContext.HttpContext.RequestServices.GetService<ILogger<WidgetViewModelPart>>();
+                DateTime startTime = DateTime.Now;
+                var widgetResult = await html.PartialAsync("DisplayWidget", widget);
+                logger.LogInformation("Render Widget [{0}]: {1}ms", widget.Widget.ServiceTypeName, (DateTime.Now - startTime).TotalMilliseconds);
+                return widgetResult;
             }
-            return html.WidgetError();
+            return await html.WidgetError();
         }
-
-        public static IHtmlContent DesignWidget(this IHtmlHelper html, DesignWidgetViewModel viewModel)
+        public static async Task<IHtmlContent> DisplayWidgetPart(this IHtmlHelper html, WidgetViewModelPart widget)
         {
-            return html.Partial("DesignWidget", viewModel);
+            if (widget.ViewModel != null)
+            {
+                return await html.PartialAsync(widget.Widget.PartialView, widget.ViewModel);
+            }
+            return await html.WidgetError();
+        }
+        public static async Task<IHtmlContent> DesignWidget(this IHtmlHelper html, DesignWidgetViewModel viewModel)
+        {
+            return await html.PartialAsync("DesignWidget", viewModel);
         }
         public static IHtmlContent SmartLink(this IHtmlHelper html, string link, string text, string cssClass = null)
         {
@@ -50,21 +69,101 @@ namespace ZKEACMS
 
         private static bool IsOpenSelf(string link)
         {
-            return true;
+            return !link.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !link.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
         }
 
-        public static IHtmlContent WidgetError(this IHtmlHelper html)
+        public static async Task<IHtmlContent> WidgetError(this IHtmlHelper html)
         {
-            return html.Partial("Widget.Error");
+            return await html.PartialAsync("Widget.Error");
         }
 
-        public static void Pagin(this IHtmlHelper html, Pagination pagin)
+        public static async Task Pagin(this IHtmlHelper html, Pagination pagin)
         {
-            html.RenderPartial("Partial_Pagination", pagin);
+            await html.RenderPartialAsync("Partial_Pagination", pagin);
         }
-        public static void Pagin(this IHtmlHelper html, Pagin pagin)
+        public static async Task Pagin(this IHtmlHelper html, Pagin pagin)
         {
-            html.RenderPartial("Partial_RegularPagination", pagin);
+            await html.RenderPartialAsync("Partial_RegularPagination", pagin);
+        }
+        public static IHtmlContent SearchTerms(this IHtmlHelper html, bool createAble)
+        {
+            return html.SearchTerms(createAble, "Create");
+        }
+        public static IHtmlContent SearchTerms(this IHtmlHelper html, bool createAble, string createAction)
+        {
+            return html.Editor(string.Empty, "Search-Terms", new { CreateAble = createAble, CreateAction = createAction });
+        }
+        public static IDisposable SearchTermsWithActions(this IHtmlHelper html, RazorPage page)
+        {
+            return new InjectEditorViewRender(page, html, "Search-Terms");
+        }
+        public static IHtmlContent SearchItem(this IHtmlHelper html, ModelMetadata item)
+        {
+            var descriptor = item.GetViewDescriptor();
+            if (descriptor is Easy.ViewPort.Descriptor.DropDownListDescriptor)
+            {
+                return html.Editor(item.PropertyName, "DropDownList");
+            }
+            else
+            {
+                if (!descriptor.Classes.Contains("form-control"))
+                {
+                    descriptor.Classes.Add("form-control");
+                }
+                Type modelType = descriptor.DataType;
+
+                if (modelType == typeof(DateTime))
+                {
+                    return html.Editor(item.PropertyName, "DateTime");
+                }
+                else if (modelType == typeof(bool))
+                {
+                    return html.Editor(item.PropertyName, "DropdownBoolen");
+                }
+                else if (modelType == typeof(decimal))
+                {
+                    return html.Editor(item.PropertyName, "Decimal");
+                }
+                else if (modelType == typeof(int))
+                {
+                    return html.Editor(item.PropertyName, "Int32");
+                }
+                else
+                {
+                    return html.Editor(item.PropertyName, "String");
+                }
+            }
+        }
+
+        public static IHtmlContent EmailLinkButton(this IHtmlHelper html, string link, string text)
+        {
+            return html.EmailLinkButton(link, text, false);
+        }
+        public static IHtmlContent EmailLinkButton(this IHtmlHelper html, string link, string text, bool center)
+        {
+            return html.Partial("EmailLinkButton", new Tuple<string, string, bool>(link, text, center));
+        }
+        public static IHtmlContent HiddenForCurrentPagePath(this IHtmlHelper html)
+        {
+            var request = html.ViewContext.HttpContext.Request;
+            if (request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+            {
+                var pagePath = request.Query["CurrentPagePath"];
+                return html.Hidden("CurrentPagePath", pagePath.Count > 0 ? pagePath : request.Path);
+            }
+            else
+            {
+                return html.Hidden("CurrentPagePath", request.Form["CurrentPagePath"]);
+            }
+        }
+
+        public static string CurrencySymbol(this IHtmlHelper html)
+        {
+            return html.ViewContext.HttpContext.RequestServices.GetService<IApplicationContextAccessor>().Current.Currency.Symbol;
+        }
+        public static string CurrencyCode(this IHtmlHelper html)
+        {
+            return html.ViewContext.HttpContext.RequestServices.GetService<IApplicationContextAccessor>().Current.Currency.Code;
         }
     }
 }

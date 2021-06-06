@@ -1,4 +1,10 @@
-﻿using Easy;
+/*!
+ * http://www.zkea.net/
+ * Copyright 2018 ZKEASOFT
+ * http://www.zkea.net/licenses
+ */
+
+using Easy;
 using Microsoft.AspNetCore.Mvc;
 using ZKEACMS.Message.Models;
 using ZKEACMS.Widget;
@@ -11,9 +17,14 @@ namespace ZKEACMS.Message.Service
             : base(widgetBasePartService, applicationContext, dbContext)
         {
         }
-        public override WidgetViewModelPart Display(WidgetBase widget, ActionContext actionContext)
+        public override object Display(WidgetDisplayContext widgetDisplayContext)
         {
-            return widget.ToWidgetViewModelPart(new MessageEntity());
+            if (widgetDisplayContext.FormModel is MessageEntity messageEntity)
+            {
+                return messageEntity;
+            }
+
+            return new MessageEntity();
         }
     }
 }

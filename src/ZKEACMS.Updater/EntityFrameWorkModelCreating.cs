@@ -1,9 +1,12 @@
-﻿using Easy.RepositoryPattern;
+/*!
+ * http://www.zkea.net/
+ * Copyright 2018 ZKEASOFT
+ * http://www.zkea.net/licenses
+ */
+
+using Easy.RepositoryPattern;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ZKEACMS.Updater.Models;
 
 namespace ZKEACMS.Updater
 {
@@ -11,7 +14,7 @@ namespace ZKEACMS.Updater
     {
         public void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            modelBuilder.Entity<DBVersion>();
         }
     }
 }

@@ -13,10 +13,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Easy.Constant;
 using System.Linq;
 using ZKEACMS.Extend;
+using Easy.RepositoryPattern;
 
 namespace ZKEACMS.Product.Models
 {
-    [Table("ProductListWidget")]
+    [DataTable("ProductListWidget")]
     public class ProductListWidget : BasicWidget
     {
         public bool IsPageable { get; set; }
@@ -37,7 +38,7 @@ namespace ZKEACMS.Product.Models
             ViewConfig(m => m.IsPageable).AsCheckBox().Order(NextOrder());
             ViewConfig(m => m.PageSize).AsTextBox().Order(NextOrder()).Range(1, 50);
             ViewConfig(m => m.Columns).AsDropDownList().Order(NextOrder()).DataSource(SourceType.Dictionary);
-            ViewConfig(m => m.PartialView).AsDropDownList().Order(NextOrder()).DataSource(SourceType.Dictionary);
+            ViewConfig(m => m.PartialView).AsDropDownList().Order(NextOrder()).DataSource(SourceType.Dictionary).AsWidgetTemplateChooser();
         }
     }
 

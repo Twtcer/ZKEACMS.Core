@@ -1,4 +1,4 @@
-﻿/* http://www.zkea.net/ 
+/* http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
  *
@@ -15,6 +15,7 @@ using Easy;
 using ZKEACMS.FormGenerator.Models;
 using ZKEACMS.WidgetTemplate;
 using ZKEACMS.FormGenerator.Service.Validator;
+using ZKEACMS.FormGenerator.EventHandler;
 
 namespace ZKEACMS.FormGenerator
 {
@@ -22,6 +23,20 @@ namespace ZKEACMS.FormGenerator
     {
         public override IEnumerable<RouteDescriptor> RegistRoute()
         {
+            yield return new RouteDescriptor
+            {
+                RouteName = "EditTemplate",
+                Template = "Admin/FormGenerator/EditTemplate/{template}",
+                Defaults = new { controller = "EditTemplate", action = "TemplateView" },
+                Priority = 11
+            };
+            yield return new RouteDescriptor
+            {
+                RouteName = "PreviewTemplate",
+                Template = "Admin/FormGenerator/PreviewTemplate/{template}",
+                Defaults = new { controller = "PreviewTemplate", action = "TemplateView" },
+                Priority = 11
+            };
             yield return new RouteDescriptor
             {
                 RouteName = "FormData",
@@ -35,26 +50,26 @@ namespace ZKEACMS.FormGenerator
         {
             yield return new AdminMenu
             {
-                Title = "自定义表单",
+                Title = "Form Generator",
                 Children = new List<AdminMenu>
                 {
                     new AdminMenu
                     {
-                        Title="表单",
-                        Url="~/Admin/Form",
+                        Title="Form",
+                        Url="~/admin/form",
                         Icon="glyphicon-list-alt",
                         PermissionKey=PermissionKeys.ViewForm
                     },
                     new AdminMenu
                     {
-                        Title="表单数据",
-                        Url="~/Admin/FormData",
+                        Title="Form Data",
+                        Url="~/admin/formdata",
                         Icon="glyphicon-record",
                         PermissionKey=PermissionKeys.ViewFormData
                     }
                 },
                 Icon = "glyphicon-list-alt",
-                Order = 10
+                Order = 12
             };
         }
 
@@ -81,19 +96,19 @@ namespace ZKEACMS.FormGenerator
 
         public override IEnumerable<PermissionDescriptor> RegistPermission()
         {
-            yield return new PermissionDescriptor(PermissionKeys.ViewForm, "自定义表单", "查看表单", "");
-            yield return new PermissionDescriptor(PermissionKeys.ManageForm, "自定义表单", "管理表单", "");
-            yield return new PermissionDescriptor(PermissionKeys.ViewFormData, "自定义表单", "查看表单数据", "");
-            yield return new PermissionDescriptor(PermissionKeys.ManageFormData, "自定义表单", "管理表单数据", "");
-            yield return new PermissionDescriptor(PermissionKeys.ExportFormData, "自定义表单", "导出表单数据", "");
+            yield return new PermissionDescriptor(PermissionKeys.ViewForm, "Form Generator", "View Form", "");
+            yield return new PermissionDescriptor(PermissionKeys.ManageForm, "Form Generator", "Manage Form", "");
+            yield return new PermissionDescriptor(PermissionKeys.ViewFormData, "Form Generator", "View Form Data", "");
+            yield return new PermissionDescriptor(PermissionKeys.ManageFormData, "Form Generator", "Manage Form Data", "");
+            yield return new PermissionDescriptor(PermissionKeys.ExportFormData, "Form Generator", "Export Form Data", "");
         }
 
         public override IEnumerable<WidgetTemplateEntity> WidgetServiceTypes()
         {
             yield return new WidgetTemplateEntity<FormWidgetService>
             {
-                Title = "表单",
-                GroupName = "4.表单",
+                Title = "Form",
+                GroupName = "4.Form",
                 PartialView = "Widget.Form",
                 Thumbnail = "~/Plugins/ZKEACMS.FormGenerator/Content/images/Widget.Form.png",
                 Order = 1
@@ -102,26 +117,32 @@ namespace ZKEACMS.FormGenerator
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IOnModelCreating, EntityFrameWorkModelCreating>();
+            serviceCollection.AddSingleton<IOnModelCreating, EntityFrameWorkModelCreating>();
 
             serviceCollection.AddTransient<IFormDataValidator, DateTimeFormDataValidator>();
             serviceCollection.AddTransient<IFormDataValidator, EmailFormDataValidator>();
             serviceCollection.AddTransient<IFormDataValidator, NumberFormDataValidator>();
             serviceCollection.AddTransient<IFormDataValidator, RequiredFormDataValidator>();
             serviceCollection.AddTransient<IFormDataValidator, MaxLengthFormDataValidator>();
+            serviceCollection.AddTransient<IFormDataValidator, RegexPatternValidator>();
+            serviceCollection.AddTransient<IFormDataValidator, PhoneFormDataValidator>();
+            serviceCollection.AddTransient<IFormDataValidator, ValidCodeFormDataValidator>();
 
             serviceCollection.TryAddTransient<IFormService, FormService>();
             serviceCollection.TryAddTransient<IFormDataService, FormDataService>();
             serviceCollection.TryAddTransient<IFormDataItemService, FormDataItemService>();
+            serviceCollection.TryAddTransient<IFormDataApiService, FormDataApiService>();
 
             serviceCollection.ConfigureMetaData<Form, FormMetaData>();
             serviceCollection.ConfigureMetaData<FormData, FormDataMetaData>();
             serviceCollection.ConfigureMetaData<FormWidget, FormWidgetMetaData>();
 
+            serviceCollection.RegistEvent<NotifyOnFormDataSubmittedEventHandler>(Events.OnFormDataSubmitted);
+
             serviceCollection.Configure<FormWidget>(option =>
             {
-                option.DataSourceLinkTitle = "表单";
-                option.DataSourceLink = "~/admin/Form";
+                option.DataSourceLinkTitle = "Form";
+                option.DataSourceLink = "~/admin/form";
             });            
         }
     }

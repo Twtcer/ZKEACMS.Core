@@ -6,7 +6,6 @@ using System.Reflection;
 
 namespace Easy.ViewPort
 {
-
     public class TagsHelper
     {
         private readonly string _key;
@@ -29,12 +28,8 @@ namespace Easy.ViewPort
         public TextBoxDescriptor AsTextBox()
         {
             TextBoxDescriptor tag = new TextBoxDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -44,12 +39,8 @@ namespace Easy.ViewPort
         public TextAreaDescriptor AsTextArea()
         {
             TextAreaDescriptor tag = new TextAreaDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -59,12 +50,8 @@ namespace Easy.ViewPort
         public DropDownListDescriptor AsDropDownList()
         {
             DropDownListDescriptor tag = new DropDownListDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -74,12 +61,8 @@ namespace Easy.ViewPort
         public FileDescriptor AsFileInput()
         {
             FileDescriptor tag = new FileDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -89,12 +72,8 @@ namespace Easy.ViewPort
         public MutiSelectDescriptor AsMutiSelect()
         {
             MutiSelectDescriptor tag = new MutiSelectDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -104,12 +83,8 @@ namespace Easy.ViewPort
         public PassWordDescriptor AsPassWord()
         {
             PassWordDescriptor tag = new PassWordDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -119,13 +94,8 @@ namespace Easy.ViewPort
         public HiddenDescriptor AsHidden()
         {
             HiddenDescriptor tag = new HiddenDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            tag.IsHidden = true;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         /// <summary>
@@ -135,23 +105,22 @@ namespace Easy.ViewPort
         public CheckBoxDescriptor AsCheckBox()
         {
             CheckBoxDescriptor tag = new CheckBoxDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
             return tag;
         }
         public ListEditorDescriptor AsListEditor()
         {
             ListEditorDescriptor tag = new ListEditorDescriptor(_modelType, _key);
-            if (_attributes.ContainsKey(this._key))
-            {
-                _attributes.Remove(this._key);
-            }
             tag.DataType = _dataType;
-            _attributes.Add(this._key, tag);
+            _attributes[this._key] = tag;
+            return tag;
+        }
+        public ObjectDescriptor AsObject()
+        {
+            ObjectDescriptor tag = new ObjectDescriptor(_modelType, _key);
+            tag.DataType = _dataType;
+            _attributes[this._key] = tag;
             return tag;
         }
     }

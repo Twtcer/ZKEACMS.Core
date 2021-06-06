@@ -1,4 +1,8 @@
-﻿using Easy.RepositoryPattern;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
+using Easy.RepositoryPattern;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace ZKEACMS.FormGenerator.Service
 {
-    public class FormService : ServiceBase<Form>, IFormService
+    public class FormService : ServiceBase<Form, CMSDbContext>, IFormService
     {
         public FormService(IApplicationContext applicationContext, CMSDbContext dbContext) : base(applicationContext, dbContext)
         {

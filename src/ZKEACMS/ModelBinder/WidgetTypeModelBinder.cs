@@ -95,7 +95,10 @@ namespace ZKEACMS.ModelBinder
                         {
                             if (!valid.Validate(bindingContext.ModelState[modelName].RawValue))
                             {
-                                valid.DisplayName = descriptor.DisplayName;
+                                if (valid.DisplayName == null)
+                                {
+                                    valid.DisplayName = () => descriptor.DisplayName;
+                                }
                                 bindingContext.ModelState[modelName].Errors.Clear();
                                 bindingContext.ModelState.TryAddModelError(modelName, valid.ErrorMessage);
                                 break;
@@ -110,7 +113,13 @@ namespace ZKEACMS.ModelBinder
                     }
                 }
             }
-
+            if (bindingContext.ModelState.ErrorCount == 0)
+            {
+                foreach (var item in bindingContext.ModelState.Keys)
+                {
+                    bindingContext.ModelState.MarkFieldValid(item);
+                }
+            }
             bindingContext.Result = ModelBindingResult.Success(bindingContext.Model);
         }
 
@@ -139,7 +148,7 @@ namespace ZKEACMS.ModelBinder
 
             return true;
         }
-        
+
         internal bool CanCreateModel(ModelBindingContext bindingContext)
         {
             var isTopLevelObject = bindingContext.IsTopLevelObject;
@@ -286,23 +295,20 @@ namespace ZKEACMS.ModelBinder
                 var descriptor = viewConfigure.GetViewPortDescriptor(modelName);
                 if (descriptor != null)
                 {
-                    bool isAllValid = true;
                     foreach (var valid in descriptor.Validator)
                     {
                         if (!valid.Validate(value))
                         {
-                            valid.DisplayName = descriptor.DisplayName;
+                           if(valid.DisplayName == null)
+                            {
+                                valid.DisplayName = () => descriptor.DisplayName;
+                            }
                             if (bindingContext.ModelState.ContainsKey(modelName))
                             {
                                 bindingContext.ModelState[modelName].Errors.Clear();
                             }
                             bindingContext.ModelState.TryAddModelError(modelName, valid.ErrorMessage);
-                            isAllValid = false;
                         }
-                    }
-                    if (isAllValid)
-                    {
-                        bindingContext.ModelState.MarkFieldValid(modelName);
                     }
                 }
 

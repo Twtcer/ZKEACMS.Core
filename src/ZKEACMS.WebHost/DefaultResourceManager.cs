@@ -14,6 +14,7 @@ namespace ZKEACMS.WebHost
         const string LibraryPath = "~/lib";
         const string ScriptPath = "~/js";
         const string StylePath = "~/css";
+        public override string Name { get; }
         protected override void InitScript(Func<string, ResourceHelper> script)
         {
 
@@ -26,6 +27,9 @@ namespace ZKEACMS.WebHost
             script("jQueryUi")
                 .Include($"{LibraryPath}/jquery-ui/jquery-ui.js", $"{LibraryPath}/jquery-ui/jquery-ui.min.js");
 
+            script("jQueryUi-sortable")
+                .Include($"{LibraryPath}/jquery-ui/jquery-ui-sortalbe.js", $"{LibraryPath}/jquery-ui/jquery-ui-sortalbe.min.js");
+
             script("Easy")
                 .Include($"{ScriptPath}/EasyPlug/Easy.js", $"{ScriptPath}/EasyPlug/Easy.min.js").RequiredAtHead();
 
@@ -34,7 +38,8 @@ namespace ZKEACMS.WebHost
 
             script("validate")
                 .Include($"{LibraryPath}/jquery-validation/dist/jquery.validate.js", $"{LibraryPath}/jquery-validation/dist/jquery.validate.min.js")
-                .Include($"{LibraryPath}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js", $"{LibraryPath}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js");
+                .Include($"{LibraryPath}/jquery-validation/dist/additional-methods.js", $"{LibraryPath}/jquery-validation/dist/additional-methods.min.js")
+                .Include($"{LibraryPath}/jquery-validation-unobtrusive/src/jquery.validate.unobtrusive.js");
 
             script("jsTree")
                 .Include($"{LibraryPath}/jstree/dist/jstree.js", $"{LibraryPath}/jstree/dist/jstree.min.js");
@@ -52,12 +57,10 @@ namespace ZKEACMS.WebHost
 
             script("admin")
                 .Include($"{ScriptPath}/admin.js", $"{ScriptPath}/admin.min.js")
-                .Include($"{LibraryPath}/CryptoJS/components/core.js", $"{LibraryPath}/CryptoJS/components/core-min.js")
-                .Include($"{LibraryPath}/CryptoJS/components/enc-base64.js", $"{LibraryPath}/CryptoJS/components/enc-base64-min.js")
-                .Include($"{LibraryPath}/slimscroll/jquery.slimscroll.min.js", $"{LibraryPath}/slimscroll/jquery.slimscroll.min.js");
+                .Include($"{LibraryPath}/smooth-scrollbar/dist/smooth-scrollbar.js");
 
-            script("slimscroll")
-                .Include($"{LibraryPath}/slimscroll/jquery.slimscroll.min.js", $"{LibraryPath}/slimscroll/jquery.slimscroll.min.js");
+            script("smooth-scrollbar")
+                .Include($"{LibraryPath}/smooth-scrollbar/dist/smooth-scrollbar.js");
 
             script("tinymce")
                 .Include($"{ScriptPath}/tinymce/tinymce.min.js")
@@ -66,20 +69,42 @@ namespace ZKEACMS.WebHost
             script("dataTable")
                 .Include($"{LibraryPath}/datatables/media/js/jquery.dataTables.js", $"{LibraryPath}/datatables/media/js/jquery.dataTables.min.js")
                 .Include($"{LibraryPath}/datatables/media/js/dataTables.bootstrap.js", $"{LibraryPath}/datatables/media/js/dataTables.bootstrap.min.js")
+                .Include($"{ScriptPath}/moment.js", $"{ScriptPath}/moment.min.js")
                 .Include($"{ScriptPath}/dataTable.js", $"{ScriptPath}/dataTable.min.js");
 
             script("datepicker")
-                .Include($"{LibraryPath}/bootstrap-datepicker/dist/js/bootstrap-datepicker.js", $"{LibraryPath}/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js")
-                .Include($"{LibraryPath}/bootstrap-datepicker/dist/locales/bootstrap-datepicker.zh-CN.min.js");
+                .Include($"{LibraryPath}/bootstrap-datepicker/moment-with-locales.min.js")
+                .Include($"{LibraryPath}/bootstrap-datepicker/bootstrap-datetimepicker.min.js");
 
             script("pjax")
-                .Include($"{LibraryPath}/jquery-pjax/jquery.pjax.js");            
+                .Include($"{LibraryPath}/jquery-pjax/jquery.pjax.js");
 
             script("angular")
                 .Include($"{LibraryPath}/angular/angular.js", $"{LibraryPath}/angular/angular.min.js");
 
+            script("select2")
+                .Include($"{LibraryPath}/select2/dist/js/select2.js", $"{LibraryPath}/select2/dist/js/select2.min.js");
+
             script("image-viewer")
                 .Include($"{ScriptPath}/cimageviewer.min.js");
+
+            script("codemirror").Include($"{LibraryPath}/codemirror/lib/codemirror.js")
+                .Include($"{LibraryPath}/codemirror/addon/edit/closetag.js")
+                .Include($"{LibraryPath}/codemirror/addon/hint/show-hint.js")
+                .Include($"{LibraryPath}/codemirror/addon/hint/xml-hint.js")
+                .Include($"{LibraryPath}/codemirror/addon/hint/html-hint.js")
+                .Include($"{LibraryPath}/codemirror/mode/xml/xml.js")
+                .Include($"{LibraryPath}/codemirror/mode/javascript/javascript.js")
+                .Include($"{LibraryPath}/codemirror/mode/css/css.js")
+                .Include($"{LibraryPath}/codemirror/mode/htmlmixed/htmlmixed.js")
+                .Include($"{LibraryPath}/codemirror/addon/format/autoformat.js", $"{LibraryPath}/codemirror/addon/format/autoformat.min.js");
+
+            script("captcha")
+                .Include($"{ScriptPath}/captcha.js", $"{ScriptPath}/captcha.min.js");
+
+            script("list-editor")
+                .Include($"{LibraryPath}/jquery-ui/jquery-ui-sortable.js", $"{LibraryPath}/jquery-ui/jquery-ui-sortable.min.js")
+                .Include($"{ScriptPath}/list-editor.js", $"{ScriptPath}/list-editor.min.js");
         }
 
         protected override void InitStyle(Func<string, ResourceHelper> style)
@@ -124,7 +149,20 @@ namespace ZKEACMS.WebHost
                 .Include($"{LibraryPath}/datatables/media/css/dataTables.bootstrap.css", $"{LibraryPath}/datatables/media/css/dataTables.bootstrap.min.css");
 
             style("datepicker")
-                .Include($"{LibraryPath}/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css", $"{LibraryPath}/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css");
+                .Include($"{LibraryPath}/bootstrap-datepicker/bootstrap-datetimepicker.min.css");
+
+            style("select2")
+                .Include($"{LibraryPath}/select2/dist/css/select2.css", $"{LibraryPath}/select2/dist/css/select2.min.css");
+
+            style("rule")
+                .Include($"{StylePath}/rule.css", $"{StylePath}/rule.min.css");
+
+            style("codemirror").Include($"{LibraryPath}/codemirror/lib/codemirror.css")
+                .Include($"{LibraryPath}/codemirror/theme/monokai.css")
+                .Include($"{LibraryPath}/codemirror/addon/hint/show-hint.css");
+
+            style("captcha")
+                .Include($"{StylePath}/captcha.css", $"{StylePath}/captcha.min.css");
         }
     }
 }

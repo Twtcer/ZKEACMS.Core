@@ -1,4 +1,4 @@
-﻿using Easy.RepositoryPattern;
+using Easy.RepositoryPattern;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,7 @@ namespace ZKEACMS.Product
             modelBuilder.Entity<ProductTag>();
             modelBuilder.Entity<ProductCategoryTag>();
             modelBuilder.Entity<ProductImage>();
+            modelBuilder.Entity<ProductGallery>();
         }
     }
 }

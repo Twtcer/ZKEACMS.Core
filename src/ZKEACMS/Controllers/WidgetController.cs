@@ -34,9 +34,12 @@ namespace ZKEACMS.Controllers
         private readonly IPackageInstallerProvider _packageInstallerProvider;
         private readonly IWidgetActivator _widgetActivator;
         private readonly IPageService _pageService;
+        private readonly ILocalize _localize;
 
         public WidgetController(IWidgetBasePartService widgetService, IWidgetTemplateService widgetTemplateService,
-            ICookie cookie, IPackageInstallerProvider packageInstallerProvider, IWidgetActivator widgetActivator, IPageService pageService)
+            ICookie cookie, IPackageInstallerProvider packageInstallerProvider, IWidgetActivator widgetActivator,
+            IPageService pageService,
+            ILocalize localize)
         {
             _widgetService = widgetService;
             _widgetTemplateService = widgetTemplateService;
@@ -44,6 +47,7 @@ namespace ZKEACMS.Controllers
             _packageInstallerProvider = packageInstallerProvider;
             _widgetActivator = widgetActivator;
             _pageService = pageService;
+            _localize = localize;
         }
         private void SetDataSource(WidgetBase widget)
         {
@@ -77,7 +81,6 @@ namespace ZKEACMS.Controllers
                 widget.Position = _widgetService.GetByLayoutId(context.LayoutID).Count(m => m.ZoneID == context.ZoneID) + 1;
             }
             SetDataSource(widget);
-            ViewBag.WidgetTemplateName = template.Title;
             ViewBag.ReturnUrl = context.ReturnUrl;
             if (template.FormView.IsNotNullAndWhiteSpace())
             {
@@ -115,14 +118,6 @@ namespace ZKEACMS.Controllers
             SetDataSource(widget);
             ViewBag.ReturnUrl = ReturnUrl;
 
-            var template = _widgetTemplateService.Get(
-                m =>
-                    m.PartialView == widget.PartialView && m.AssemblyName == widget.AssemblyName &&
-                    m.ServiceTypeName == widget.ServiceTypeName && m.ViewModelTypeName == widget.ViewModelTypeName).FirstOrDefault();
-            if (template != null)
-            {
-                ViewBag.WidgetTemplateName = template.Title;
-            }
             if (widget.FormView.IsNotNullAndWhiteSpace())
             {
                 return View(widget.FormView, widget);
@@ -179,13 +174,26 @@ namespace ZKEACMS.Controllers
         }
 
         [HttpPost]
-        public PartialViewResult AppendWidget(WidgetBase widget)
+        public IActionResult AppendWidget(WidgetBase widget)
         {
+            if (widget == null || widget.PageID.IsNullOrWhiteSpace())
+            {
+                return NotFound();
+            }
+            //set design environment
             HttpContext.RequestServices.GetService<IApplicationContextAccessor>().Current.PageMode = Filter.PageViewMode.Design;
-            var widgetPart = _widgetService.ApplyTemplate(widget, ControllerContext);
+            var page = HttpContext.RequestServices.GetService<IPageService>().Get(widget.PageID);
+            WidgetViewModelPart widgetPart = null;
+            if (page != null)
+            {
+                var layout = HttpContext.RequestServices.GetService<Layout.ILayoutService>().GetByPage(page);
+                layout.Page = page;
+                widgetPart = _widgetService.ApplyTemplate(layout, widget, ControllerContext);
+            }
             if (widgetPart == null)
             {
-                widgetPart = new HtmlWidget { PartialView = "Widget.HTML", HTML = "<h1 class='text-danger'><hr/>操作失败，找不到数据源，刷新页面后该消息会消失。<hr/></h1>" }.ToWidgetViewModelPart();
+                HtmlWidget errorWidget = new HtmlWidget { PartialView = "Widget.HTML", HTML = "<h1 class='text-danger'><hr/>Error<hr/></h1>" };
+                widgetPart = new WidgetViewModelPart(errorWidget, errorWidget);
             }
             return PartialView("AppendWidget", new DesignWidgetViewModel(widgetPart, widget.PageID));
         }
@@ -255,7 +263,7 @@ namespace ZKEACMS.Controllers
         {
             var dataDictionaryService = HttpContext.RequestServices.GetService<IDataDictionaryService>();
             var dataDictionary = dataDictionaryService.Get(ID);
-            var installer = new DataDictionaryPackageInstaller(HttpContext.RequestServices.GetService<IHostingEnvironment>(), dataDictionaryService);
+            var installer = new DataDictionaryPackageInstaller(HttpContext.RequestServices.GetService<IWebHostEnvironment>(), dataDictionaryService);
             if (filePath != null && filePath.Any())
             {
                 installer.OnPacking = () =>
@@ -297,11 +305,11 @@ namespace ZKEACMS.Controllers
         public JsonResult Copy(string widgetId)
         {
             _cookie.SetValue(Const.CopyWidgetCookie, widgetId, true, true);
-            return Json(new AjaxResult { Status = AjaxStatus.Normal, Message = "复制成功，请到需要的页面区域粘贴！" });
+            return Json(new AjaxResult { Status = AjaxStatus.Normal, Message = _localize.Get("Copy success") });
         }
 
         [HttpPost]
-        public PartialViewResult Paste(WidgetBase widget)
+        public IActionResult Paste(WidgetBase widget)
         {
             widget.ID = _cookie.GetValue<string>(Const.CopyWidgetCookie);
             return AppendWidget(widget);
@@ -310,7 +318,10 @@ namespace ZKEACMS.Controllers
         public ActionResult PasteAndRedirect(WidgetBase widget, string ReturnUrl)
         {
             widget.ID = _cookie.GetValue<string>(Const.CopyWidgetCookie);
-            var widgetPart = _widgetService.ApplyTemplate(widget, ControllerContext);
+            var page = HttpContext.RequestServices.GetService<IPageService>().Get(widget.PageID);
+            var layout = HttpContext.RequestServices.GetService<Layout.ILayoutService>().GetByPage(page);
+            layout.Page = page;
+            var widgetPart = _widgetService.ApplyTemplate(layout, widget, ControllerContext);
             if (widgetPart != null)
             {
                 if (ReturnUrl.IsNotNullAndWhiteSpace())
@@ -321,6 +332,11 @@ namespace ZKEACMS.Controllers
             }
             _cookie.GetValue<string>(Const.CopyWidgetCookie, true);
             return RedirectToAction("SelectWidget", "WidgetTemplate", new { widget.PageID, widget.ZoneID, widget.LayoutID, ReturnUrl });
+        }
+
+        public IActionResult PlayVideo(string url)
+        {
+            return View("PlayVideo", url);
         }
     }
 }

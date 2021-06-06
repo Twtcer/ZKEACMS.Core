@@ -1,4 +1,8 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright 2020 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +25,14 @@ namespace ZKEACMS.FormGenerator.Service
             _formService = formService;
         }
 
-        public override WidgetViewModelPart Display(WidgetBase widget, ActionContext actionContext)
+        public override object Display(WidgetDisplayContext widgetDisplayContext)
         {
-            return widget.ToWidgetViewModelPart(_formService.Get((widget as FormWidget).FormID));
+            if(widgetDisplayContext.FormModel is Form form)
+            {
+                return form;
+            }
+            form = _formService.Get((widgetDisplayContext.Widget as FormWidget).FormID);
+            return form;
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using System;
+/* http://www.zkea.net/ 
+ * Copyright 2018 ZKEASOFT 
+ * http://www.zkea.net/licenses */
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -114,7 +117,7 @@ namespace Easy.DataTransfer
             }
             catch
             {
-                ErrorMessages.Add("上传的文件有误，仅支持office 2007（.xlsx）以后的格式");
+                ErrorMessages.Add("Only support .xlsx");
             }
             if (doc != null)
             {

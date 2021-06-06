@@ -1,4 +1,4 @@
-﻿using Easy.RepositoryPattern;
+using Easy.RepositoryPattern;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +11,15 @@ using ZKEACMS.Product.Service;
 
 namespace ZKEACMS.Shop.Service
 {
-    public class BasketService : ServiceBase<Basket>, IBasketService
+    public class BasketService : ServiceBase<Basket, CMSDbContext>, IBasketService
     {
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        public BasketService(IApplicationContext applicationContext, IProductService productService, IOrderService orderService, IOrderItemService orderItemService, CMSDbContext dbContext) : base(applicationContext, dbContext)
+        public BasketService(IApplicationContext applicationContext, IProductService productService, IOrderService orderService, CMSDbContext dbContext) 
+            : base(applicationContext, dbContext)
         {
             _productService = productService;
             _orderService = orderService;
-            _orderItemService = orderItemService;
         }
         
         public override IQueryable<Basket> Get()
@@ -95,13 +94,9 @@ namespace ZKEACMS.Shop.Service
                     return order;
                 }
                 order.UserId = ApplicationContext.CurrentCustomer.UserID;
-                order.OrderStatus = (int)OrderStatus.UnPaid;
                 order.Total = baskets.Sum(m => m.Price * m.Quantity);
-                _orderService.Add(order);
-                foreach (var item in baskets)
-                {
-                    _orderItemService.Add(item.ToOrderItem(order.ID));
-                }
+                order.OrderItems = baskets.Select(m => m.ToOrderItem()).ToList();
+                _orderService.Add(order);                
                 RemoveRange(baskets.ToArray());
             }
             return order;

@@ -1,4 +1,4 @@
-﻿@model WidgetTemplateViewModel
+@model WidgetTemplateViewModel
 @{
     Style.Reqiured("Layout").AtFoot();
 }
@@ -6,11 +6,11 @@
     <div class="panel-heading">        
         <div class="form-inline">
             <div class="form-group">
-                <label for="exampleInputName2">搜索</label>
-                <input id="search" class="form-control" type="text" placeholder="输入关键字进行搜索..." />
+                <label for="exampleInputName2">@L("Search")</label>
+                <input id="search" class="form-control" type="text" placeholder="@L("Enter keyworkds to search...")" />
             </div>
             <div class="form-group">
-                选择组件，<strong>双击</strong>或者点击<strong>下一步</strong>
+                @L("Select widget then double click or click next.")
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
                             <label for="template-@template.ID" class="thumbnail">
                                 <img src="@Url.Content(template.Thumbnail)" />
                                 <span>
-                                    @template.Title
+                                    @L(template.Title)
                                 </span>
                             </label>
                         </div>
@@ -35,15 +35,15 @@
                 }
             }
             <div class="toolBar">
-                <input id="design" type="submit" class="btn btn-primary" value="下一步" />
+                <input id="design" type="submit" class="btn btn-primary" value="@L("Next")" />
                 @if (Model.CanPasteWidget)
                 {
                     <a class="btn btn-warning" href="@Url.Action("PasteAndRedirect", "Widget", new { Model.LayoutID, Model.PageID,Model.ZoneID,Model.ReturnUrl })">
                         <i class="glyphicon glyphicon-paste"></i>
-                        粘贴
+                        @L("Paste")
                     </a>
                 }
-                <input type="button" class="btn btn-default cancel" value="取消" />
+                <input type="button" class="btn btn-default cancel" value="@L("Cancel")" />
             </div>
         }
     </div>
